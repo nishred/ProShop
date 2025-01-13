@@ -1,9 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Product } from "@/types";
 import Rating from "./rating";
 import ProductPrice from "./product-price";
+
+import { Product } from "@/types";
 
 const ProductCard = ({ product }: { product: Product }) => {
   return (
@@ -19,6 +20,8 @@ const ProductCard = ({ product }: { product: Product }) => {
           />
         </Link>
       </CardHeader>
+
+
       <CardContent className="p-4 grid gap-4">
         <div className="text-xs">{product.brand}</div>
         <Link href={`/product/${product.slug}`}>
@@ -33,6 +36,8 @@ const ProductCard = ({ product }: { product: Product }) => {
           )}
         </div>
       </CardContent>
+
+      
     </Card>
   );
 };

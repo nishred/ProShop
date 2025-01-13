@@ -1,3 +1,5 @@
+
+
 const Rating = ({ value, caption }: { value: number; caption?: string }) => {
   const Full = () => (
     <svg
@@ -42,3 +44,6 @@ const Rating = ({ value, caption }: { value: number; caption?: string }) => {
   );
 };
 export default Rating;
+
+
+

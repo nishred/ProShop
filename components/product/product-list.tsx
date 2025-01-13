@@ -1,4 +1,3 @@
-
 import { Product } from "@/types";
 import ProductCard from "./product-card";
 
@@ -11,6 +10,8 @@ const ProductList = ({
   title?: string;
   limit?: number;
 }) => {
+
+
   const limitedData = limit ? data.slice(0, limit) : data;
 
   return (

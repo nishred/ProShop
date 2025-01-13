@@ -9,11 +9,12 @@ import ModeToggle from "./mode-toggle";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { EllipsisVertical, ShoppingCart, User } from "lucide-react";
+import UserButton from "./user-button";
 
 const Menu = () => {
   return (
     <>
-      <div className="flex gap-2 hidden md:block">
+      <div className="gap-2 hidden md:flex">
         <ModeToggle />
 
         <Button asChild variant={"ghost"}>
@@ -22,11 +23,7 @@ const Menu = () => {
           </Link>
         </Button>
 
-        <Button asChild>
-          <Link href={"/sign-in"}>
-            <User /> Sign in
-          </Link>
-        </Button>
+        <UserButton />
       </div>
 
       <div className="md:hidden">
@@ -46,11 +43,7 @@ const Menu = () => {
               </Link>
             </Button>
 
-            <Button asChild>
-              <Link href={"/sign-in"}>
-                <User /> Sign in
-              </Link>
-            </Button>
+            <UserButton />
 
             <SheetDescription></SheetDescription>
           </SheetContent>
