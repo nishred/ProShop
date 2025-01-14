@@ -160,6 +160,9 @@ export async function createPayPalOrder(orderId: string) {
   }
 }
 
+
+
+
 // Approve paypal order and update order to paid
 export async function approvePayPalOrder(
   orderId: string,
@@ -271,6 +274,9 @@ export async function updateOrderToPaid({
   });
 }
 
+
+
+
 // Get user's orders
 export async function getMyOrders({
   limit = PAGE_SIZE,
@@ -299,27 +305,42 @@ export async function getMyOrders({
   };
 }
 
+
+
 type SalesDataType = {
   month: string;
   totalSales: number;
 }[];
 
+
+
 // Get sales data and order summary
 export async function getOrderSummary() {
+
   // Get counts for each resource
   const ordersCount = await prisma.order.count();
   const productsCount = await prisma.product.count();
   const usersCount = await prisma.user.count();
+
 
   // Calculate the total sales
   const totalSales = await prisma.order.aggregate({
     _sum: { totalPrice: true },
   });
 
+
+  type TmonthlySales = {
+      month: string;
+      totalSales: Prisma.Decimal;
+  }
+
   // Get monthly sales
-  const salesDataRaw = await prisma.$queryRaw<
-    Array<{ month: string; totalSales: Prisma.Decimal }>
-  >`SELECT to_char("createdAt", 'MM/YY') as "month", sum("totalPrice") as "totalSales" FROM "Order" GROUP BY to_char("createdAt", 'MM/YY')`;
+  const salesDataRaw = await prisma.$queryRaw<TmonthlySales[]>`
+  SELECT to_char("createdAt", 'MM/YY') as "month", 
+         sum("totalPrice") as "totalSales" 
+  FROM "Order" 
+  GROUP BY to_char("createdAt", 'MM/YY')
+`;
 
   const salesData: SalesDataType = salesDataRaw.map((entry) => ({
     month: entry.month,
@@ -335,6 +356,7 @@ export async function getOrderSummary() {
     take: 6,
   });
 
+
   return {
     ordersCount,
     productsCount,
@@ -344,6 +366,9 @@ export async function getOrderSummary() {
     salesData,
   };
 }
+
+
+
 
 // Get all orders
 export async function getAllOrders({
@@ -444,3 +469,4 @@ export async function deliverOrder(orderId: string) {
     return { success: false, message: formatError(error) };
   }
 }
+

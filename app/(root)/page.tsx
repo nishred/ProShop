@@ -2,7 +2,10 @@ import { Metadata } from "next";
 
 import ProductList from "@/components/product/product-list";
 
-import { getProducts } from "@/lib/actions/product.actions";
+import {
+  getAllProducts,
+  getLatestProducts,
+} from "@/lib/actions/product.actions";
 
 export const metadata: Metadata = {
   title: "ROOT",
@@ -10,7 +13,8 @@ export const metadata: Metadata = {
 
 const HomePage = async () => {
 
-  const products = await getProducts();
+  
+  const products = await getLatestProducts();
 
   return (
     <>
@@ -20,5 +24,3 @@ const HomePage = async () => {
 };
 
 export default HomePage;
-
-
