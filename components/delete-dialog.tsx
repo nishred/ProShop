@@ -14,6 +14,8 @@ import {
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
 
+
+
 const DeleteDialog = ({
   id,
   action,
@@ -21,6 +23,8 @@ const DeleteDialog = ({
   id: string;
   action: (id: string) => Promise<{ success: boolean; message: string }>;
 }) => {
+
+    
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();

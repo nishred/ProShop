@@ -2,7 +2,11 @@
 
 import { useToast } from "@/hooks/use-toast";
 import { productDefaultValues } from "@/lib/constants";
-import { insertProductSchema, updateProductSchema } from "@/types/validators";
+import {
+  insertProductSchema,
+  updateProductSchema,
+  productFormSchema,
+} from "@/types/validators";
 import { Product } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -21,10 +25,17 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { createProduct, updateProduct } from "@/lib/actions/product.actions";
-import { UploadButton } from "@/lib/uploadthing";
+
+
+import {AWS_REGION,AWS_BUCKET_NAME} from "@/lib/constants"
+
+import { generateS3UploadUrl } from "@/lib/actions/aws-upload";
+
 import { Card, CardContent } from "../ui/card";
 import Image from "next/image";
 import { Checkbox } from "../ui/checkbox";
+
+import { useState } from "react";
 
 // export const insertProductSchema = z.object({
 //   name: z.string().min(3, "Name must be at least 3 characters"),
@@ -39,7 +50,6 @@ import { Checkbox } from "../ui/checkbox";
 //   price: currency,
 // });
 
-
 const ProductForm = ({
   type,
   product,
@@ -52,64 +62,67 @@ const ProductForm = ({
   const router = useRouter();
   const { toast } = useToast();
 
-  const form = useForm<z.infer<typeof insertProductSchema>>({
+  type TproductForm = z.infer<typeof productFormSchema>;
+
+  const form = useForm<TproductForm>({
     resolver:
       type === "Update"
         ? zodResolver(updateProductSchema)
-        : zodResolver(insertProductSchema),
+        : zodResolver(productFormSchema),
     defaultValues:
       product && type === "Update" ? product : productDefaultValues,
   });
 
+  const onSubmit = async (values: TproductForm) => {
+    console.log("manvitha");
 
-
-
-  const onSubmit: SubmitHandler<z.infer<typeof insertProductSchema>> = async (
-    values
-  ) => {
     // On Create
-    if (type === "Create") {
-      const res = await createProduct(values);
 
-      if (!res.success) {
+    try {
+      console.log("values", values);
+
+      const files = Array.from(values.images);
+
+      const uploadServiceResponse = await generateS3UploadUrl(files);
+
+      const imageObjects = await Promise.all(uploadServiceResponse);
+
+      const imageUrls: string[] = [];
+
+      await Promise.all(
+        imageObjects.map((imageObj) => {
+
+          imageUrls.push(
+            `https://${AWS_BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/${imageObj.Key}`
+          );
+
+          return fetch(imageObj.signedUrl, {
+            method: "PUT",
+            body: imageObj.file,
+            headers: {
+              "Content-Type": imageObj.file.type,
+            },
+          });
+        })
+      );
+
+      const productData = { ...values, images: imageUrls };
+
+      const res = await createProduct(productData);
+
+      if (res.success) {
+        router.push("/admin/products");
+      } else {
         toast({
           variant: "destructive",
           description: res.message,
         });
-      } else {
-        toast({
-          description: res.message,
-        });
-        router.push("/admin/products");
       }
-    }
-
-    // On Update
-    if (type === "Update") {
-      if (!productId) {
-        router.push("/admin/products");
-        return;
-      }
-
-      const res = await updateProduct({ ...values, id: productId });
-
-      if (!res.success) {
-        toast({
-          variant: "destructive",
-          description: res.message,
-        });
-      } else {
-        toast({
-          description: res.message,
-        });
-        router.push("/admin/products");
-      }
+    } catch (err) {
+      console.log(err);
+      window.alert("There was a problem uoloading files");
     }
   };
-
-  const images = form.watch("images");
-  const isFeatured = form.watch("isFeatured");
-  const banner = form.watch("banner");
 
   return (
     <Form {...form}>
@@ -140,9 +153,6 @@ const ProductForm = ({
               </FormItem>
             )}
           />
-
-
-
 
           {/* Slug */}
           <FormField
@@ -181,8 +191,6 @@ const ProductForm = ({
           />
         </div>
         <div className="flex flex-col md:flex-row gap-5">
-
-
           {/* Category */}
           <FormField
             control={form.control}
@@ -204,7 +212,6 @@ const ProductForm = ({
               </FormItem>
             )}
           />
-
 
           {/* Brand */}
           <FormField
@@ -229,8 +236,6 @@ const ProductForm = ({
           />
         </div>
         <div className="flex flex-col md:flex-row gap-5">
-
-
           {/* Price */}
           <FormField
             control={form.control}
@@ -252,7 +257,6 @@ const ProductForm = ({
               </FormItem>
             )}
           />
-
 
           {/* Stock */}
           <FormField
@@ -277,46 +281,21 @@ const ProductForm = ({
           />
         </div>
         <div className="upload-field flex flex-col md:flex-row gap-5">
-
-        
           {/* Images */}
+
           <FormField
-            control={form.control}
             name="images"
-            render={() => (
-              <FormItem className="w-full">
-                <FormLabel>Images</FormLabel>
-                <Card>
-                  <CardContent className="space-y-2 mt-2 min-h-48">
-                    <div className="flex-start space-x-2">
-                      {images.map((image: string) => (
-                        <Image
-                          key={image}
-                          src={image}
-                          alt="product image"
-                          className="w-20 h-20 object-cover object-center rounded-sm"
-                          width={100}
-                          height={100}
-                        />
-                      ))}
-                      <FormControl>
-                        <UploadButton
-                          endpoint="imageUploader"
-                          onClientUploadComplete={(res: { url: string }[]) => {
-                            form.setValue("images", [...images, res[0].url]);
-                          }}
-                          onUploadError={(error: Error) => {
-                            toast({
-                              variant: "destructive",
-                              description: `ERROR! ${error.message}`,
-                            });
-                          }}
-                        />
-                      </FormControl>
-                    </div>
-                  </CardContent>
-                </Card>
-                <FormMessage />
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Image</FormLabel>
+                <FormControl>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => field.onChange(e.target.files)}
+                  />
+                </FormControl>
               </FormItem>
             )}
           />
@@ -341,30 +320,6 @@ const ProductForm = ({
                   </FormItem>
                 )}
               />
-              {isFeatured && banner && (
-                <Image
-                  src={banner}
-                  alt="banner image"
-                  className="w-full object-cover object-center rounded-sm"
-                  width={1920}
-                  height={680}
-                />
-              )}
-
-              {isFeatured && !banner && (
-                <UploadButton
-                  endpoint="imageUploader"
-                  onClientUploadComplete={(res: { url: string }[]) => {
-                    form.setValue("banner", res[0].url);
-                  }}
-                  onUploadError={(error: Error) => {
-                    toast({
-                      variant: "destructive",
-                      description: `ERROR! ${error.message}`,
-                    });
-                  }}
-                />
-              )}
             </CardContent>
           </Card>
         </div>

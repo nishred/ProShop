@@ -25,6 +25,21 @@ export const insertProductSchema = z.object({
   price: currency,
 });
 
+
+export const productFormSchema = z.object({
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  slug: z.string().min(3, "Slug must be at least 3 characters"),
+  category: z.string().min(3, "Category must be at least 3 characters"),
+  brand: z.string().min(3, "Brand must be at least 3 characters"),
+  description: z.string().min(3, "Description must be at least 3 characters"),
+  stock: z.coerce.number(),
+  images: z.custom<FileList>(),
+  isFeatured: z.boolean(),
+  banner: z.string().nullable(),
+  price: currency,
+});
+
+
 // Schema for updating products
 export const updateProductSchema = insertProductSchema.extend({
   id: z.string().min(1, "Id is required"),

@@ -100,6 +100,8 @@ const OrderDetailsTable = ({
 
   // Button to mark order as paid
   const MarkAsPaidButton = () => {
+
+    
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
 

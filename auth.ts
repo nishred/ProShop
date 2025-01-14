@@ -6,7 +6,7 @@ import { compare } from "./lib/encrypt";
 import type { NextAuthConfig } from "next-auth";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { ChartColumnStackedIcon } from "lucide-react";
+import { compareSync } from "bcrypt-ts-edge";
 
 export const config = {
   pages: {
@@ -25,9 +25,10 @@ export const config = {
         password: { type: "password" },
       },
 
-
       async authorize(credentials) {
         if (credentials == null) return null;
+
+        console.log(credentials);
 
         // Find user in database
         const user = await prisma.user.findFirst({
@@ -36,12 +37,16 @@ export const config = {
           },
         });
 
+        console.log("user", user);
+
         // Check if user exists and if the password matches
         if (user && user.password) {
-          const isMatch = await compare(
-            credentials.password as string,
-            user.password
-          );
+
+
+         
+         const isMatch = compareSync(credentials.password,user.password)
+
+          console.log("password match", isMatch);
 
           // If password is correct, return user
           if (isMatch) {
@@ -131,7 +136,6 @@ export const config = {
       return token;
     },
 
-
     // A cookie is some data that is stored in the user's device by the  browser. It is sent to the server with every request the user makes. It is sent as part of the cookie header.
 
     // the authorized callback gets called for every request that you make inside your application. It is used to determine if the user is authorized to access a certain path. If the user is not authorized, the callback returns false and the user is redirected to the sign-in page.
@@ -143,7 +147,6 @@ export const config = {
     // This is where the control goes when you hit the middleware
 
     authorized({ request, auth }: any) {
-
       // the auth object here is the session
 
       // Array of regex patterns of paths we want to protect

@@ -52,6 +52,8 @@ export const productDefaultValues = {
   banner: null,
 };
 
+
+
 export const USER_ROLES = process.env.USER_ROLES
   ? process.env.USER_ROLES.split(", ")
   : ["admin", "user"];
@@ -63,3 +65,8 @@ export const reviewFormDefaultValues = {
 };
 
 export const SENDER_EMAIL = process.env.SENDER_EMAIL || "onboarding@resend.dev";
+
+export const AWS_BUCKET_NAME = process.env.NEXT_PUBLIC_AWS_BUCKET_NAME
+
+export const AWS_REGION = process.env.NEXT_PUBLIC_AWS_REGION
+
