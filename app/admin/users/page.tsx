@@ -25,6 +25,8 @@ const AdminUserPage = async (props: {
     query: string;
   }>;
 }) => {
+
+
   const { page = "1", query: searchText } = await props.searchParams;
 
   const users = await getAllUsers({ page: Number(page), query: searchText });
@@ -87,3 +89,5 @@ const AdminUserPage = async (props: {
 };
 
 export default AdminUserPage;
+
+

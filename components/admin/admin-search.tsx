@@ -5,7 +5,10 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { Input } from "../ui/input";
 
 const AdminSearch = () => {
+
   const pathname = usePathname();
+
+
   const formActionUrl = pathname.includes("/admin/orders")
     ? "/admin/orders"
     : pathname.includes("/admin/users")
@@ -13,11 +16,14 @@ const AdminSearch = () => {
     : "/admin/products";
 
   const searchParams = useSearchParams();
+
   const [queryValue, setQueryValue] = useState(searchParams.get("query") || "");
+
 
   useEffect(() => {
     setQueryValue(searchParams.get("query") || "");
   }, [searchParams]);
+
 
   return (
     <form action={formActionUrl} method="GET">
@@ -37,3 +43,5 @@ const AdminSearch = () => {
 };
 
 export default AdminSearch;
+
+

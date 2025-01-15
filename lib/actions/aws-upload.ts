@@ -1,14 +1,14 @@
 "use server";
 
-import {AWS_BUCKET_NAME,AWS_REGION} from "@/lib/constants"
+import {AWS_BUCKET_NAME,AWS_REGION,AWS_SECRET_ACCESS_KEY,AWS_ACCESS_KEY_ID} from "@/lib/constants"
 
 import AWS from "aws-sdk";
 
 // Configure AWS S3
 const s3 = new AWS.S3({
   region: AWS_REGION,
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  accessKeyId: AWS_ACCESS_KEY_ID,
+  secretAccessKey: AWS_SECRET_ACCESS_KEY,
 });
 
 export async function generateS3UploadUrl(images:File[]) {

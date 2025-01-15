@@ -91,6 +91,8 @@ export async function getUserById(userId: string) {
   return user;
 }
 
+
+
 // Update the user's address
 export async function updateUserAddress(data: ShippingAddress) {
   try {
@@ -187,6 +189,7 @@ export async function getAllUsers({
   page: number;
   query: string;
 }) {
+
   const queryFilter: Prisma.UserWhereInput =
     query && query !== "all"
       ? {
@@ -196,6 +199,7 @@ export async function getAllUsers({
           } as Prisma.StringFilter,
         }
       : {};
+
 
   const data = await prisma.user.findMany({
     where: {

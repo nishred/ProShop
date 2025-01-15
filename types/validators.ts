@@ -33,7 +33,7 @@ export const productFormSchema = z.object({
   brand: z.string().min(3, "Brand must be at least 3 characters"),
   description: z.string().min(3, "Description must be at least 3 characters"),
   stock: z.coerce.number(),
-  images: z.custom<FileList>(),
+  images: z.union([z.custom<FileList>(),z.array(z.string())]),
   isFeatured: z.boolean(),
   banner: z.string().nullable(),
   price: currency,

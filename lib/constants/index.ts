@@ -1,3 +1,5 @@
+
+
 export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "Prostore";
 export const APP_DESCRIPTION =
   process.env.NEXT_PUBLIC_APP_DESCRIPTION ||
@@ -69,4 +71,10 @@ export const SENDER_EMAIL = process.env.SENDER_EMAIL || "onboarding@resend.dev";
 export const AWS_BUCKET_NAME = process.env.NEXT_PUBLIC_AWS_BUCKET_NAME
 
 export const AWS_REGION = process.env.NEXT_PUBLIC_AWS_REGION
+
+
+export const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID
+
+export const  AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY
+
 

@@ -26,8 +26,7 @@ import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { createProduct, updateProduct } from "@/lib/actions/product.actions";
 
-
-import {AWS_REGION,AWS_BUCKET_NAME} from "@/lib/constants"
+import { AWS_REGION, AWS_BUCKET_NAME } from "@/lib/constants";
 
 import { generateS3UploadUrl } from "@/lib/actions/aws-upload";
 
@@ -36,19 +35,7 @@ import Image from "next/image";
 import { Checkbox } from "../ui/checkbox";
 
 import { useState } from "react";
-
-// export const insertProductSchema = z.object({
-//   name: z.string().min(3, "Name must be at least 3 characters"),
-//   slug: z.string().min(3, "Slug must be at least 3 characters"),
-//   category: z.string().min(3, "Category must be at least 3 characters"),
-//   brand: z.string().min(3, "Brand must be at least 3 characters"),
-//   description: z.string().min(3, "Description must be at least 3 characters"),
-//   stock: z.coerce.number(),
-//   images: z.array(z.string()).min(1, "Product must have at least one image"),
-//   isFeatured: z.boolean(),
-//   banner: z.string().nullable(),
-//   price: currency,
-// });
+import { formatError } from "@/lib/utils";
 
 const ProductForm = ({
   type,
@@ -62,6 +49,8 @@ const ProductForm = ({
   const router = useRouter();
   const { toast } = useToast();
 
+  const [updateImages, setUpateImages] = useState(false);
+
   type TproductForm = z.infer<typeof productFormSchema>;
 
   const form = useForm<TproductForm>({
@@ -74,53 +63,101 @@ const ProductForm = ({
   });
 
   const onSubmit = async (values: TproductForm) => {
-    console.log("manvitha");
-
-    // On Create
-
     try {
-      console.log("values", values);
+      if (type === "Create") {
+        // On Create
+        console.log("values", values);
 
-      const files = Array.from(values.images);
+        const files = Array.from(values.images as FileList);
 
-      const uploadServiceResponse = await generateS3UploadUrl(files);
+        const uploadServiceResponse = await generateS3UploadUrl(files);
 
-      const imageObjects = await Promise.all(uploadServiceResponse);
+        const imageObjects = await Promise.all(uploadServiceResponse);
 
-      const imageUrls: string[] = [];
+        const imageUrls: string[] = [];
 
-      await Promise.all(
-        imageObjects.map((imageObj) => {
+        await Promise.all(
+          imageObjects.map((imageObj) => {
+            imageUrls.push(
+              `https://${AWS_BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/${imageObj.Key}`
+            );
 
-          imageUrls.push(
-            `https://${AWS_BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/${imageObj.Key}`
+            return fetch(imageObj.signedUrl, {
+              method: "PUT",
+              body: imageObj.file,
+              headers: {
+                "Content-Type": imageObj.file.type,
+              },
+            });
+          })
+        );
+
+        const productData = { ...values, images: imageUrls };
+
+        const res = await createProduct(productData);
+
+        if (res.success) {
+          router.push("/admin/products");
+        } else {
+          toast({
+            variant: "destructive",
+            description: res.message,
+          });
+        }
+      } else {
+
+
+        if (updateImages) {
+
+
+
+          const imageFiles = Array.from(values.images as FileList);
+
+          const imageSignedUrls = await generateS3UploadUrl(imageFiles);
+
+          const imageObjects = await Promise.all(imageSignedUrls);
+
+          const imageUrls: string[] = [];
+
+          await Promise.all(
+            imageObjects.map((imageObj) => {
+              imageUrls.push(
+                `https://${AWS_BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/${imageObj.Key}`
+              );
+
+              return fetch(imageObj.signedUrl, {
+                method: "PUT",
+                body: imageObj.file,
+                headers: {
+                  "Content-Type": imageObj.file.type,
+                },
+              });
+            })
           );
 
-          return fetch(imageObj.signedUrl, {
-            method: "PUT",
-            body: imageObj.file,
-            headers: {
-              "Content-Type": imageObj.file.type,
-            },
-          });
-        })
-      );
+          values.images = imageUrls;
+        }
 
-      const productData = { ...values, images: imageUrls };
-
-      const res = await createProduct(productData);
-
-      if (res.success) {
-        router.push("/admin/products");
-      } else {
-        toast({
-          variant: "destructive",
-          description: res.message,
+        const res = await updateProduct({
+          ...values,
+          images: values.images as string[],
+          id: productId as string,
         });
+
+        if (res.success) {
+          router.push("/admin/products");
+        } else {
+          toast({
+            variant: "destructive",
+            description: res.message,
+          });
+        }
       }
     } catch (err) {
-      console.log(err);
-      window.alert("There was a problem uoloading files");
+      toast({
+        variant: "destructive",
+        description: formatError(err),
+      });
     }
   };
 
@@ -293,7 +330,10 @@ const ProductForm = ({
                   <Input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => field.onChange(e.target.files)}
+                    onChange={(e) => {
+                      if (type === "Update") setUpateImages(true);
+                      field.onChange(e.target.files);
+                    }}
                   />
                 </FormControl>
               </FormItem>
