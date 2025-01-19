@@ -12,6 +12,8 @@ const Header = () => {
   return (
     <div className="border-b border-solid border-slate-300">
       <div className="py-3 wrapper flex justify-between items-center">
+
+
         <div className="flex gap-2 items-center">
           <Link href="/">
             <Image
@@ -34,3 +36,4 @@ const Header = () => {
 };
 
 export default Header;
+

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 const NotFound = () => {
+
   const router = useRouter();
 
   return (
@@ -40,3 +41,6 @@ const NotFound = () => {
 };
 
 export default NotFound;
+
+
+

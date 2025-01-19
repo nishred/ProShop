@@ -2,11 +2,14 @@ import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { client as prisma } from "@/db/prisma";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { compare } from "./lib/encrypt";
-import type { NextAuthConfig } from "next-auth";
+import type { NextAuthConfig, Session } from "next-auth";
 import { cookies } from "next/headers";
+import type { JWT, Account, Profile } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 import { compareSync } from "bcrypt-ts-edge";
+
+import { User } from "next-auth";
+
 
 export const config = {
   pages: {
@@ -18,6 +21,7 @@ export const config = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   adapter: PrismaAdapter(prisma),
+  secret : process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       credentials: {
@@ -42,9 +46,7 @@ export const config = {
         // Check if user exists and if the password matches
         if (user && user.password) {
 
-
-         
-         const isMatch = compareSync(credentials.password,user.password)
+         const isMatch = compareSync(credentials.password as string,user.password)
 
           console.log("password match", isMatch);
 
@@ -85,11 +87,23 @@ export const config = {
       return session;
     },
 
-    async jwt({ token, user, trigger, session }: any) {
+    async jwt({ token, user, trigger, session }:{
+
+    token: JWT;
+    user: User;
+    account: Account | null;
+    profile?: Profile;
+    trigger?: "signIn" | "signUp" | "update";
+    isNewUser?: boolean;
+    session?: any;
+
+    }) {
       // Assign user fields to token
       if (user) {
+
+
         token.id = user.id;
-        token.role = user.role;
+        token.role = user.role || "";
 
         // If user has no name then use the email
         if (user.name === "NO_NAME") {

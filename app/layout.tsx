@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 
 import { ThemeProvider } from "next-themes";
 
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -29,6 +30,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body

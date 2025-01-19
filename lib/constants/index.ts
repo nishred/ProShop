@@ -1,5 +1,3 @@
-
-
 export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "Prostore";
 export const APP_DESCRIPTION =
   process.env.NEXT_PUBLIC_APP_DESCRIPTION ||
@@ -33,11 +31,10 @@ export const PAYMENT_METHODS = process.env.PAYMENT_METHODS
   ? process.env.PAYMENT_METHODS.split(",")
   : ["PayPal", "Stripe", "CashOnDelivery"];
 
-
 export const DEFAULT_PAYMENT_METHOD =
   process.env.DEFAULT_PAYMENT_METHOD || "PayPal";
 
-export const PAGE_SIZE = Number(process.env.PAGE_SIZE) || 12;
+export const PAGE_SIZE = Number(process.env.PAGE_SIZE) || 4;
 
 export const productDefaultValues = {
   name: "",
@@ -54,8 +51,6 @@ export const productDefaultValues = {
   banner: null,
 };
 
-
-
 export const USER_ROLES = process.env.USER_ROLES
   ? process.env.USER_ROLES.split(", ")
   : ["admin", "user"];
@@ -68,13 +63,10 @@ export const reviewFormDefaultValues = {
 
 export const SENDER_EMAIL = process.env.SENDER_EMAIL || "onboarding@resend.dev";
 
-export const AWS_BUCKET_NAME = process.env.NEXT_PUBLIC_AWS_BUCKET_NAME
+export const AWS_BUCKET_NAME = process.env.NEXT_PUBLIC_AWS_BUCKET_NAME;
 
-export const AWS_REGION = process.env.NEXT_PUBLIC_AWS_REGION
+export const AWS_REGION = process.env.NEXT_PUBLIC_AWS_REGION;
 
+export const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
 
-export const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID
-
-export const  AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY
-
-
+export const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;

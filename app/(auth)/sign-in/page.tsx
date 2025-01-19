@@ -25,7 +25,6 @@ const SignInPage = async ({
   }>;
 }) => {
 
-
   const { callbackUrl } = await searchParams;
 
   const session = await auth();

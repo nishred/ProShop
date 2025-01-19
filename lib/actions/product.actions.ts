@@ -9,7 +9,6 @@ import { Prisma } from "@prisma/client";
 
 import { generateS3UploadUrl } from "../actions/uploadToS3";
 
-
 // Get latest products
 export async function getLatestProducts() {
   const data = await prisma.product.findMany({
@@ -36,10 +35,8 @@ export async function getProductById(productId: string) {
   return convertToPlainObject(data);
 }
 
-
 // Get all products
 export async function getAllProducts({
-
   query,
   limit = PAGE_SIZE,
   page,
@@ -47,8 +44,6 @@ export async function getAllProducts({
   price,
   rating,
   sort,
-
-
 }: {
   query: string;
   limit?: number;
@@ -84,8 +79,6 @@ export async function getAllProducts({
         }
       : {};
 
-
-
   // Rating filter
   const ratingFilter =
     rating && rating !== "all"
@@ -96,9 +89,7 @@ export async function getAllProducts({
         }
       : {};
 
-
-
-  const data = await prisma.product.findMany({
+  const findObject = {
     where: {
       ...queryFilter,
       ...categoryFilter,
@@ -114,20 +105,27 @@ export async function getAllProducts({
         ? { rating: "desc" }
         : { createdAt: "desc" },
 
-
     skip: (page - 1) * limit,
     take: limit,
+  };
+
+  const data = await prisma.product.findMany(findObject);
+
+  const clause = {
+    ...queryFilter,
+    ...categoryFilter,
+    ...priceFilter,
+    ...ratingFilter,
+  };
+
+  const dataCount = await prisma.product.count({
+    where: clause,
   });
-
-  const dataCount = await prisma.product.count();
-
   return {
     data,
     totalPages: Math.ceil(dataCount / limit),
   };
 }
-
-
 
 // Delete a product
 export async function deleteProduct(id: string) {
@@ -209,9 +207,8 @@ export async function getFeaturedProducts() {
   const data = await prisma.product.findMany({
     where: { isFeatured: true },
     orderBy: { createdAt: "desc" },
-    take: 4,
+    take: 10,
   });
 
   return convertToPlainObject(data);
 }
-

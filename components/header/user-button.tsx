@@ -13,7 +13,6 @@ import { UserIcon } from 'lucide-react';
 
 const UserButton = async () => {
 
-
   const session = await auth();
 
   if (!session) {
@@ -29,6 +28,8 @@ const UserButton = async () => {
   const firstInitial = session.user?.name?.charAt(0).toUpperCase() ?? 'U';
 
   return (
+
+
     <div className='flex gap-2 items-center justify-center'>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -41,6 +42,8 @@ const UserButton = async () => {
             </Button>
           </div>
         </DropdownMenuTrigger>
+
+
         <DropdownMenuContent className='w-56' align='end' forceMount>
 
 
@@ -76,6 +79,8 @@ const UserButton = async () => {
           )}
 
           <DropdownMenuItem className='p-0 mb-1'>
+
+
             <form action={signOutUser} className='w-full'>
               <Button
                 className='w-full py-4 px-2 h-4 justify-start'
@@ -84,6 +89,8 @@ const UserButton = async () => {
                 Sign Out
               </Button>
             </form>
+
+            
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

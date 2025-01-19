@@ -19,6 +19,8 @@ import { PAGE_SIZE } from "../constants";
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 
+import { hashSync } from "bcrypt-ts-edge";
+
 // Sign in the user with credentials
 export async function signInWithCredentials(
   prevState: unknown,
@@ -49,6 +51,7 @@ export async function signOutUser() {
 // Sign up user
 export async function signUpUser(prevState: unknown, formData: FormData) {
   try {
+
     const user = signUpFormSchema.parse({
       name: formData.get("name"),
       email: formData.get("email"),
@@ -58,7 +61,8 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
 
     const plainPassword = user.password;
 
-    user.password = await hash(user.password);
+    user.password = hashSync(plainPassword)
+    
 
     await prisma.user.create({
       data: {
@@ -68,6 +72,7 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
       },
     });
 
+
     await signIn("credentials", {
       email: user.email,
       password: plainPassword,
@@ -75,6 +80,9 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
 
     return { success: true, message: "User registered successfully" };
   } catch (error) {
+
+    console.log("error",error)
+
     if (isRedirectError(error)) {
       throw error;
     }
@@ -90,8 +98,6 @@ export async function getUserById(userId: string) {
   if (!user) throw new Error("User not found");
   return user;
 }
-
-
 
 // Update the user's address
 export async function updateUserAddress(data: ShippingAddress) {
@@ -189,7 +195,6 @@ export async function getAllUsers({
   page: number;
   query: string;
 }) {
-
   const queryFilter: Prisma.UserWhereInput =
     query && query !== "all"
       ? {
@@ -199,7 +204,6 @@ export async function getAllUsers({
           } as Prisma.StringFilter,
         }
       : {};
-
 
   const data = await prisma.user.findMany({
     where: {
@@ -252,7 +256,7 @@ export async function updateUser(user: z.infer<typeof updateUserSchema>) {
 
     return {
       success: true,
-      message: "User updated successfully",
+      message: "User pdated successfully",
     };
   } catch (error) {
     return { success: false, message: formatError(error) };
